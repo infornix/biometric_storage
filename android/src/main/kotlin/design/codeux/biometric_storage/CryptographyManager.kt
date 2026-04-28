@@ -110,7 +110,9 @@ class CryptographyManagerImpl(
     ): Cipher {
         val iv = ByteArray(IV_SIZE_IN_BYTES)
         val count = encryptedDataFile.inputStream().read(iv)
-        assert(count == IV_SIZE_IN_BYTES)
+        if (count != IV_SIZE_IN_BYTES) {
+            throw IllegalStateException("Expected $IV_SIZE_IN_BYTES bytes for IV but read $count from ${encryptedDataFile.name}")
+        }
         return getInitializedCipherForDecryption(keyName, iv)
     }
 
@@ -119,8 +121,12 @@ class CryptographyManagerImpl(
         val ciphertext = ByteArray(IV_SIZE_IN_BYTES + input.size + TAG_SIZE_IN_BYTES)
         val bytesWritten = cipher.doFinal(input, 0, input.size, ciphertext, IV_SIZE_IN_BYTES)
         cipher.iv.copyInto(ciphertext)
-        assert(bytesWritten == input.size + TAG_SIZE_IN_BYTES)
-        assert(cipher.iv.size == IV_SIZE_IN_BYTES)
+        if (bytesWritten != input.size + TAG_SIZE_IN_BYTES) {
+            throw IllegalStateException("Expected ${input.size + TAG_SIZE_IN_BYTES} bytes written but got $bytesWritten")
+        }
+        if (cipher.iv.size != IV_SIZE_IN_BYTES) {
+            throw IllegalStateException("Expected IV size $IV_SIZE_IN_BYTES but got ${cipher.iv.size}")
+        }
         logger.debug { "encrypted ${input.size} (${ciphertext.size} output)" }
 //        val ciphertext = cipher.doFinal(plaintext.toByteArray(Charsets.UTF_8))
         return EncryptedData(ciphertext)

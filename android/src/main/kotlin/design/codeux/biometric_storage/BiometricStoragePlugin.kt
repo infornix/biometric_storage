@@ -283,7 +283,7 @@ class BiometricStoragePlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
         } catch (e: MethodCallException) {
             logger.error(e) { "Error while processing method call ${call.method}" }
             result.error(e.errorCode, e.errorMessage, e.errorDetails)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             logger.error(e) { "Error while processing method call '${call.method}'" }
             result.error("Unexpected Error", e.message, e.toCompleteString())
         }
