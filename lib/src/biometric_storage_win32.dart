@@ -44,7 +44,7 @@ class Win32BiometricStoragePlugin extends BiometricStorage {
     String name,
     PromptInfo promptInfo,
   ) async {
-    final namePointer = TEXT(name);
+    final namePointer = name.toPcwstr();;
     try {
       final result = CredDelete(namePointer, CRED_TYPE_GENERIC, 0);
       if (result != TRUE) {
@@ -69,7 +69,7 @@ class Win32BiometricStoragePlugin extends BiometricStorage {
   ) async {
     _logger.finer('read($name)');
     final credPointer = calloc<Pointer<CREDENTIAL>>();
-    final namePointer = TEXT(name);
+    final namePointer = name.toPcwstr();;
     try {
       if (CredRead(namePointer, CRED_TYPE_GENERIC, 0, credPointer) != TRUE) {
         final errorCode = GetLastError();
@@ -106,8 +106,8 @@ class Win32BiometricStoragePlugin extends BiometricStorage {
     _logger.fine('write()');
     final examplePassword = utf8.encode(content);
     final blob = examplePassword.allocatePointer();
-    final namePointer = TEXT(name);
-    final userNamePointer = TEXT('flutter.biometric_storage');
+    final namePointer = name.toPcwstr();;
+    final userNamePointer = 'flutter.biometric_storage'.toPcwstr();;
 
     final credential = calloc<CREDENTIAL>()
       ..ref.Type = CRED_TYPE_GENERIC
